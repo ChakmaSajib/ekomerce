@@ -1,15 +1,19 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import Head from 'next/head';
-import { AppBar, Toolbar, Typography, Container, Link, createTheme, ThemeProvider, CssBaseline, Switch, Badge } from '@mui/material';
+import { AppBar, Toolbar, Typography, Container, Link, createTheme, ThemeProvider, CssBaseline, Switch, Badge, Button, Menu, MenuItem } from '@mui/material';
 import NextLink from "next/link"
 import useStyles from '../utils/styles';
 import { Store } from '../utils/store';
 import Cookies from 'js-cookie'
+import { useRouter } from 'next/router';
+
 
 export default function Layout({ title, description, children }) {
     const { state, dispatch } = useContext(Store)
-
-    const { darkMode, cart } = state
+    const [anchorEl, setAnchorEl] = useState(null)
+    const classes = useStyles()
+    const { darkMode, cart, userInfo } = state
+    const router = useRouter()
 
     const theme = createTheme({
         typography: {
@@ -36,13 +40,25 @@ export default function Layout({ title, description, children }) {
             }
         }
     })
-    const classes = useStyles()
+
 
     const darkModeOnChangeHandler = () => {
         dispatch({ type: darkMode ? 'DARK_MODE_OFF' : 'DARK_MODE_ON' })
         const newDarkMode = !darkMode;
         Cookies.set('darkmode', newDarkMode ? 'ON' : 'OFF')
 
+    }
+
+    const loginClickHandler = (e) => {
+        setAnchorEl(e.currentTarget)
+    }
+
+    const loginMenuCloseHandler = () => {
+        setAnchorEl(null);
+        dispatch({ type: "USER_LOGOUT" })
+        Cookies.remove("userInfo")
+        Cookies.remove("cartItems")
+        router.push("/")
     }
 
     return (
@@ -57,8 +73,8 @@ export default function Layout({ title, description, children }) {
                 {/** App bar */}
                 <AppBar position="static" className={classes.navbar}>
                     <Toolbar>
-                        <NextLink href="/" passHref>
-                            <Link>
+                        <NextLink href="/" passHref  >
+                            <Link style={{ textDecoration: 'none' }}>
                                 <Typography className={classes.brand}>
                                     Ekomers
                                 </Typography>
@@ -69,13 +85,33 @@ export default function Layout({ title, description, children }) {
                         <div>
                             <NextLink href="/cart" passHref>
                                 <Link>
-                                    {cart.cartItems.length > 0 ? (<Badge color="secondary" badgeContent={cart.cartItems.length}>Cart</Badge>) : ("Cart")}
+                                    {cart.cartItems && cart.cartItems.length > 0 ? (<Badge color="secondary" badgeContent={cart.cartItems.length}>Cart</Badge>) : ("Cart")}
                                 </Link>
                             </NextLink>
 
-                            <NextLink href="/login" passHref>
-                                <Link>Login</Link>
-                            </NextLink>
+                            {/** If userInfo exist in cookie then show user name */}
+                            {userInfo ?
+                                (
+                                    <>
+                                        <Button className={classes.navBarButton} onClick={loginClickHandler} aria-controls="simple-menu" aria-haspopup='true'>
+                                            {userInfo.name}
+                                        </Button>
+
+                                        <Menu id="simple-menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={loginMenuCloseHandler}>
+                                            <MenuItem onClick={loginMenuCloseHandler}> Profile </MenuItem>
+                                            <MenuItem onClick={loginMenuCloseHandler}> My account </MenuItem>
+                                            <MenuItem onClick={loginMenuCloseHandler}> Logout </MenuItem>
+                                        </Menu>
+                                    </>
+                                )
+                                :
+                                (<NextLink href="/login" passHref>
+                                    <Link>Login</Link>
+                                </NextLink>
+                                )
+                            }
+
+
                         </div>
                     </Toolbar>
                 </AppBar>
@@ -91,6 +127,6 @@ export default function Layout({ title, description, children }) {
                     <Typography> All rights reserved. Next Ekomerce </Typography>
                 </footer>
             </ThemeProvider>
-        </div>
+        </div >
     )
 }

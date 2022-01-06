@@ -10,6 +10,7 @@ import db from "../../utils/db"
 import Product from '../../models/Product'
 import axios from 'axios'
 import { Store } from '../../utils/store'
+import { useRouter } from 'next/router'
 
 
 
@@ -18,19 +19,27 @@ export default function ProductScreen(props) {
     // const { slug } = router.query
     // const product = products.find((product) => product.slug === slug)
     const { product } = props
+    const router = useRouter()
     const classes = useStyles()
-    const { dispatch } = useContext(Store)
+    const { dispatch, state } = useContext(Store)
     if (!product) {
         return <div>product is not found!</div>
     }
 
     const addToCartHandler = async () => {
+
+
+        const existItem = state.cart.cartItems.find((item) => item._id === product._id)
+        const quantity = existItem ? existItem.quantity + 1 : 1
+
         const { data } = await axios.get(`/api/products/${product._id}`)
-        if (data.countInStock <= 0) {
+        if (data.countInStock < quantity) {
             window.alert("Sorry, product is out of stock")
             return;
         }
-        dispatch({ type: "ADD_TO_CART", payload: { ...product, quantity: 1 } })
+
+        dispatch({ type: "ADD_TO_CART", payload: { ...product, quantity: quantity } })
+        router.push("/cart")
 
     }
     return (

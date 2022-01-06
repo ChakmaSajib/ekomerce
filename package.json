@@ -1,6 +1,9 @@
 {
   "name": "ekomerce",
   "private": true,
+  "author": {
+    "name": "sajib Chakma"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -13,12 +16,17 @@
     "@mui/material": "^5.2.6",
     "@mui/styles": "^5.2.3",
     "axios": "^0.24.0",
+    "bcryptjs": "^2.4.3",
     "js-cookie": "^3.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
     "mongoose": "^6.1.4",
     "next": "12.0.7",
     "next-connect": "^0.11.0",
+    "notistack": "^2.0.3",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "react-hook-form": "^7.22.5"
   },
   "devDependencies": {
     "eslint": "8.6.0",

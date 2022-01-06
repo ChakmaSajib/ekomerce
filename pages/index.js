@@ -1,3 +1,4 @@
+import React, { useContext } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import Layout from '../components/Layout'
@@ -6,9 +7,29 @@ import { Card, CardActionArea, CardContent, CardMedia, CardActions, Grid, Typogr
 import NextLink from "next/link"
 import db from "../utils/db"
 import Product from "../models/Product"
+import { Store } from '../utils/store'
+import axios from "axios"
+import { useRouter } from 'next/router'
 
 export default function Home(props) {
   const { products } = props
+  const { state, dispatch } = useContext(Store)
+  const router = useRouter()
+
+  const addToCartHandler = async (product) => {
+    const { data } = await axios.get(`/api/products/${product._id}`)
+    if (data.countInStock <= 0) {
+      window.alert("Sorry, product is out of stock")
+      return;
+    }
+
+    const existItem = state.cart.cartItems.find((item) => item._id === product._id)
+    const quantity = existItem ? existItem.quantity + 1 : 1
+
+    dispatch({ type: "ADD_TO_CART", payload: { ...product, quantity } })
+    router.push('/cart')
+
+  }
   return (
     <Layout>
       <div>
@@ -30,7 +51,7 @@ export default function Home(props) {
                 </NextLink>
                 <CardActions>
                   <Typography>${product.price}</Typography>
-                  <Button size="small" color="primary"> Add to cart</Button>
+                  <Button size="small" color="primary" onClick={() => addToCartHandler(product)}> Add to cart</Button>
                 </CardActions>
               </Card>
             </Grid>
