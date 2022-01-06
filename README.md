@@ -20,6 +20,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
    - useContext Hook
 4. **Lodash**
 5. **Mongodb** with **Mongoose**
+6. **React-Hook-Form**
+7. **Notistack** for showing notification
 
 ### Most used React hooks
 
